@@ -60,7 +60,8 @@ Finally, to promote the local changes onto the current setup, execute:
     before running the script, get your Consul ent license and put them in the project directory (or change the script to point them to the right place)
     in the kubeConfig.sh script, you have a step by step process to configure both Consul enterprise and Vault enterprise. I would recommend doing this manually line by line until this script can be improved to be run automatically. 
 
-    ### Thanks
+
+### Thanks
 
     thanks to Corrigan Neralich and his [gke vault project](https://github.com/cneralich/gke-vault-consul-poc)
     thanks to John boero for his [vault helm script](https://github.com/hashicorp/vault-guides/blob/master/shared/vault/scripts/vault-k8s-helm.sh)
