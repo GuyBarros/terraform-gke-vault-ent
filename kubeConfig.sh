@@ -28,7 +28,7 @@ kubectl exec consul-0 --namespace vault-deploy -c consul -- consul license put "
 # Provision IP Address (Replace COMPUTE_REGION and PROJECT_ID Accordingly)
 #gcloud compute addresses create vault   --region=europe-west2   --project gb-playground
 # Set Env Var
-export VAULT_API_ADDRESS=$(gcloud compute addresses describe vault-api-address   --region europe-west2   --project gb-playground   --format=value(address))
+export VAULT_API_ADDRESS=$(gcloud compute addresses describe vault-api-address   --region europe-west2   --project gb-playground   --format=value'(address)')
 # echo %VAULT_LOAD_BALANCER_IP%
 # Create Vault Config Map
 kubectl create configmap vault --from-literal api-addr=https://${VAULT_API_ADDRESS}:8200 --from-file=vault.hcl -n vault-deploy
