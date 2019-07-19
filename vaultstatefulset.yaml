@@ -1,0 +1,129 @@
+#Create a StatefulSet
+apiVersion: apps/v1
+kind: StatefulSet
+metadata: 
+  labels: 
+    app: vault
+  name: vault
+spec: 
+  replicas: 3
+  selector: 
+    matchLabels: 
+      app: vault
+  serviceName: vault
+  template: 
+    metadata: 
+      labels: 
+        app: vault
+    spec: 
+      affinity: 
+        podAntiAffinity: 
+          requiredDuringSchedulingIgnoredDuringExecution: 
+            - 
+              labelSelector: 
+                matchExpressions: 
+                  - 
+                    key: app
+                    operator: In
+                    values: 
+                      - vault
+              topologyKey: kubernetes.io/hostname
+      containers: 
+        -
+          command: ["vault", "server", "-config", "/vault/config/vault.hcl"]
+          env: 
+            - 
+              name: HOST_IP
+              valueFrom: 
+                fieldRef: 
+                  fieldPath: status.hostIP
+            - 
+              name: POD_IP
+              valueFrom: 
+                fieldRef: 
+                  fieldPath: status.podIP
+            - 
+              name: NAMESPACE
+              valueFrom: 
+                fieldRef: 
+                  fieldPath: metadata.namespace
+            - 
+              name: "VAULT_API_ADDR"
+              valueFrom:
+                configMapKeyRef:
+                  name: vault
+                  key: api-addr
+            - 
+              name: "VAULT_CLUSTER_ADDR"
+              value: "https://$(POD_IP):8201"
+
+          image: "eu.gcr.io/gb-playground/gke_hashistack"
+          imagePullPolicy: IfNotPresent
+          lifecycle: 
+            preStop: 
+              exec: 
+                command: 
+                  - "vault operator step-down"
+          name: vault
+          ports: 
+            - 
+              containerPort: 8200
+              name: vault-port
+              protocol: TCP
+            - 
+              containerPort: 8201
+              name: cluster-port
+              protocol: TCP
+          securityContext: 
+            capabilities: 
+              add: 
+                - IPC_LOCK
+          volumeMounts: 
+            - 
+              mountPath: /vault/config/vault.hcl
+              name: configurations
+              subPath: vault.hcl
+        - 
+          args: 
+            - agent
+            - "-retry-join=consul-0.consul.$(NAMESPACE).svc.cluster.local"
+            - "-retry-join=consul-1.consul.$(NAMESPACE).svc.cluster.local"
+            - "-retry-join=consul-2.consul.$(NAMESPACE).svc.cluster.local"
+            - "-domain=cluster.local"
+            - "-datacenter=dc1"
+            - "-disable-host-node-id"
+            - "-client=127.0.0.1"
+            - "-bind=$(POD_IP)"
+          env: 
+            - 
+              name: POD_IP
+              valueFrom: 
+                fieldRef: 
+                  fieldPath: status.podIP
+            - 
+              name: NAMESPACE
+              valueFrom: 
+                fieldRef: 
+                  fieldPath: metadata.namespace
+          image: "hashicorp/consul-enterprise:latest"
+          name: consul-vault-agent
+          volumeMounts: 
+            - 
+              mountPath: /consul/data
+              name: data
+      terminationGracePeriodSeconds: 10
+      volumes: 
+        - 
+          configMap: 
+            name: vault
+          name: configurations
+  volumeClaimTemplates: 
+    - 
+      metadata: 
+        name: data
+      spec: 
+        accessModes: 
+          - ReadWriteOnce
+        resources: 
+          requests: 
+            storage: 1Gi
