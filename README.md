@@ -63,7 +63,7 @@ Finally, to promote the local changes onto the current setup, execute:
 
 ### Thanks
 
-    thanks to Corrigan Neralich and his [gke vault project](https://github.com/cneralich/gke-vault-consul-poc)
-    thanks to John boero for his [vault helm script](https://github.com/hashicorp/vault-guides/blob/master/shared/vault/scripts/vault-k8s-helm.sh)
-    and countless others like Lance Haig, Nicolas Ehrman, Jerome Baude who helped me troubleshoot when I got stuck
+    * thanks to Corrigan Neralich and his [gke vault project](https://github.com/cneralich/gke-vault-consul-poc)
+    * thanks to John boero for his [vault helm script](https://github.com/hashicorp/vault-guides/blob/master/shared/vault/scripts/vault-k8s-helm.sh)
+    * and countless others like Lance Haig, Nicolas Ehrman, Jerome Baude who helped me troubleshoot when I got stuck
 
